@@ -1,13 +1,20 @@
 from django.db import models
 from django.conf import settings
+from django.urls import reverse
 from django.utils import timezone
+
+
+class PublishedManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset()\
+                      .filter(status=Post.Status.PUBLISHED)
 
 class Post(models.Model):
 
     class Status(models.TextChoices):
         DRAFT = 'DF', 'Draft'
         PUBLISHED = 'PB', 'Published'
-        
+
     title = models.CharField(max_length=250)
     slug = models.SlugField(max_length=250)
     author = models.ForeignKey(settings.AUTH_USER_MODEL,
@@ -24,6 +31,13 @@ class Post(models.Model):
                               default=Status.DRAFT)
     
 
+    objects = models.Manager() # The default manager
+    published = PublishedManager() # Our custom manager
+
+
+    def get_absolute_url(self):
+        return reverse('blog:post_detail', args=[self.id])
+    
 
     class Meta:
         ordering = ['-publish']
