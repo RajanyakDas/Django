@@ -19,5 +19,9 @@
       {{ post.body|truncatewords:30|linebreaks }}
     </div>
   {% endfor %}
-  {% include "pagination.html" with page=posts %}
+  {% include "blog/pagination.html" with page=page_obj %}
 {% endblock %}
+
+<hr>
+DEBUG: Has Next? {{ page_obj.has_next }} <br>
+DEBUG: Current Page: {{ page_obj.number }}

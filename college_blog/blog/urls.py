@@ -5,6 +5,7 @@ app_name = 'blog'
 
 urlpatterns = [
     # post views
-    path('', views.post_list, name='post_list'),
+    #path('', views.post_list, name='post_list'), we will replace this with the class-based view below
+    path('', views.PostListView.as_view(), name='post_list'), # New Class View
     path('<int:id>/', views.post_detail, name='post_detail'),
 ]
