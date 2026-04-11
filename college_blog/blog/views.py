@@ -1,39 +1,67 @@
+
 from django.core import paginator
 from django.shortcuts import render, get_object_or_404
 from .models import Post
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger # For Pagination
 from django.views.generic import ListView #For PostListView
-
+from .forms import EmailPostForm # For Post Sharing
 # Create your views here.
 
 
 def post_list(request):
     # Using our custom manager to get ONLY published posts
     posts = Post.published.all()
-    paginator = Paginator(posts, 3)
+    pagn_obj = Paginator(posts, 3)
     page_number = request.GET.get('page', 1)
 
     try:
-        posts = paginator.page(page_number)
+        posts = pagn_obj.page(page_number)
     except PageNotAnInteger:
         # If page_number is not an integer deliver the first page
-        posts = paginator.page(1)
+        posts = pagn_obj.page(1)
     except EmptyPage:
         # If page_number is out of range deliver last page of results
-        posts = paginator.page(paginator.num_pages)
+        posts = pagn_obj.page(pagn_obj.num_pages)
         
     return render(request,
                   'blog/post/list.html',
                   {'posts': posts})
 
-def post_detail(request, id):
+def post_detail(request,year,month,day, post):
     # Try to find the post by ID, or return a 404 error
     post = get_object_or_404(Post,
-                             id=id,
-                             status=Post.Status.PUBLISHED)
+                             status=Post.Status.PUBLISHED,
+                             slug=post,
+                             publish__year=year,
+                             publish__month=month,
+                             publish__day=day,
+                             )
     return render(request,
                   'blog/post/detail.html',
                   {'post': post})
+
+def post_share(request, post_id):
+    # Retrieve post by id
+    post = get_object_or_404(Post, id=post_id, status=Post.Status.PUBLISHED)
+    sent = False # <--- Track if email was sent
+    
+    if request.method == 'POST':
+        # Form was submitted
+        form = EmailPostForm(request.POST)
+        if form.is_valid():
+            # Form fields passed validation
+            cd = form.cleaned_data
+            
+            # ... send email 
+            sent = True
+            
+    else:
+        form = EmailPostForm()
+        
+    return render(request, 'blog/post/share.html', {'post': post,
+                                                    'form': form,
+                                                    'sent': sent
+                                                    })
 
 class PostListView(ListView):
     """

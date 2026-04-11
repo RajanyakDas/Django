@@ -2,16 +2,14 @@
 
 {% block title %}My Blog{% endblock %}
 
-<p>Debug: The number of posts is {{ posts.count }}</p>
-
 {% block content %}
+  <p style="color: red;">DEBUG: Total posts: {{ posts.count }}</p>
+
   <h1>My Blog</h1>
   {% for post in posts %}
     <div class="post">
       <h2>
-        <a href="{{ post.get_absolute_url }}">
-          {{ post.title }}
-        </a>
+        <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
       </h2>
       <p class="date">
         Published {{ post.publish }} by {{ post.author }}
@@ -19,9 +17,8 @@
       {{ post.body|truncatewords:30|linebreaks }}
     </div>
   {% endfor %}
-  {% include "blog/pagination.html" with page=page_obj %}
-{% endblock %}
 
-<hr>
-DEBUG: Has Next? {{ page_obj.has_next }} <br>
-DEBUG: Current Page: {{ page_obj.number }}
+  {% include "blog/pagination.html" with page=page_obj %}
+
+  
+{% endblock %}
