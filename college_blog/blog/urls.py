@@ -7,8 +7,7 @@ urlpatterns = [
     # post views
     #path('', views.post_list, name='post_list'), we will replace this with the class-based view below
     path('', views.PostListView.as_view(), name='post_list'), # New Class View
-    path('<int:year>/<int:month>/<int:day>/<slug:post>/',
-     views.post_detail,
-     name='post_detail'),
+    path('<int:year>/<int:month>/<int:day>/<slug:post>/',views.post_detail,name='post_detail'),
     path('<int:post_id>/share/', views.post_share, name='post_share'),
+    path('<int:post_id>/comment/', views.post_comment, name='post_comment'),
 ]

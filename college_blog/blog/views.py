@@ -6,6 +6,8 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger # For P
 from django.views.generic import ListView #For PostListView
 from .forms import EmailPostForm # For Post Sharing
 from .forms import CommentForm # For Comments   
+from django.views.decorators.http import require_POST # For Comments
+
 # Create your views here.
 
 
@@ -82,3 +84,21 @@ class PostListView(ListView):
     context_object_name = 'posts'
     paginate_by = 3
     template_name = 'blog/post/list.html'
+
+@require_POST
+def post_comment(request, post_id):
+    post = get_object_or_404(Post, id=post_id, status=Post.Status.PUBLISHED)
+    comment = None
+    # A comment was posted
+    form = CommentForm(data=request.POST)
+    if form.is_valid():
+        # Create a Comment object without saving it to the database yet
+        comment = form.save(commit=False)
+        # Assign the post to the comment
+        comment.post = post
+        # Save the comment to the database
+        comment.save()
+    return render(request, 'blog/post/comment.html',
+                           {'post': post,
+                            'form': form,
+                            'comment': comment})
