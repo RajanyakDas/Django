@@ -5,6 +5,7 @@ from .models import Post
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger # For Pagination
 from django.views.generic import ListView #For PostListView
 from .forms import EmailPostForm # For Post Sharing
+from .forms import CommentForm # For Comments   
 # Create your views here.
 
 
@@ -36,9 +37,19 @@ def post_detail(request,year,month,day, post):
                              publish__month=month,
                              publish__day=day,
                              )
+
+    # List of active comments for this post
+    comments = post.comments.filter(active=True)
+    
+    # Form for users to comment
+    form = CommentForm()
+
     return render(request,
                   'blog/post/detail.html',
-                  {'post': post})
+                  {'post': post,
+                   'comments': comments,
+                   'form': form})
+    
 
 def post_share(request, post_id):
     # Retrieve post by id
